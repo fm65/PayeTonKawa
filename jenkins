@@ -7,6 +7,19 @@ agent any
                     git branch: 'master', url: 'https://github.com/fm65/PayeTonKawa.git'
             }
         }
+
+        stage('Create virtualenv') {
+            steps {
+                sh 'python3 -m venv env'
+            }
+        }
+        
+        stage('activate virtualenv') {
+            steps {
+                sh 'chmod +x env/bin/activate'
+                sh '. env/bin/activate'
+            }
+        }
         
         stage('Install requirements') {
             steps {
