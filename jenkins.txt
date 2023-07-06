@@ -1,0 +1,72 @@
+pipeline{
+agent any
+
+    //Setting the environment variables
+    environment {
+        SECRET_KEY='fdkjshfhjsdfdskfdsfdcbsjdkfdsdf'
+        DEBUG='True'
+        APP_SETTINGS='config.DevelopmentConfig'
+        DATABASE_URL='sqlite:///db.sqlite'
+        FLASK_APP='src'
+        FLASK_DEBUG='1'
+    }
+
+
+    stages {
+        stage('Checkout') {
+            steps {
+                    git branch: 'master', url: 'https://github.com/fm65/work-group-user.git'
+            }
+        }
+
+        stage('Create virtualenv') {
+            steps {
+                sh 'python3 -m venv env'
+            }
+        }
+        
+        stage('activate virtualenv') {
+            steps {
+                sh 'chmod +x env/bin/activate'
+                sh '. env/bin/activate'
+            }
+        }
+        
+        stage('Install requirements') {
+            steps {
+                sh 'pip install -r requirements.txt'
+            }
+        }
+        
+        stage('Initialize database') {
+            steps {
+                sh 'rm -fr migrations'
+                sh 'flask db init'
+            }
+        }
+        
+        stage('Test forms') {
+            steps {
+                sh 'python3 manage.py test_forms'
+            }
+        }
+        
+        stage('Test models') {
+            steps {
+                sh 'python3 manage.py test_models'
+            }
+        }
+        
+        stage('Test routes') {
+            steps {
+                sh 'python3 manage.py test_routes'
+            }
+        }
+
+        stage('All tests') {
+            steps {
+                sh 'python3 manage.py test'
+            }
+        }
+    }
+}
